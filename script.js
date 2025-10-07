@@ -1,4 +1,4 @@
-// Vintage Travel Poster Generator JavaScript with Image Generation
+// Vintage Travel Poster Generator JavaScript with Enhanced Image Generation
 
 class VintagePosterGenerator {
     constructor() {
@@ -114,7 +114,7 @@ class VintagePosterGenerator {
             await this.generatePosterVariations(formData);
         } catch (error) {
             console.error('Error generating posters:', error);
-            this.showErrorMessage('A apărut o eroare la generarea posterelor. Încercați din nou.');
+            this.showErrorMessage('A apărut o eroare la generarea posterelor. Încearcați din nou.');
         } finally {
             this.hideLoadingState();
         }
@@ -122,19 +122,36 @@ class VintagePosterGenerator {
     
     showLoadingState() {
         const posterCardsContainer = document.getElementById('posterCards');
+        const generateBtn = document.querySelector('.generate-btn');
+        const btnText = generateBtn.querySelector('.btn-text');
+        const btnLoader = generateBtn.querySelector('.btn-loader');
+        
         posterCardsContainer.innerHTML = `
             <div class="loading-container">
                 <div class="loading-spinner"></div>
-                <p>Se generează posterele și imaginile... Te rog să aștepți.</p>
+                <p>🎨 Se generează posterele și imaginile... Te rog să aștepți.</p>
+                <small>Folosim metoda pollination pentru a crea multiple variații creative</small>
             </div>
         `;
+        
+        generateBtn.disabled = true;
+        btnText.style.display = 'none';
+        btnLoader.style.display = 'inline';
     }
     
     hideLoadingState() {
         const loadingContainer = document.querySelector('.loading-container');
+        const generateBtn = document.querySelector('.generate-btn');
+        const btnText = generateBtn.querySelector('.btn-text');
+        const btnLoader = generateBtn.querySelector('.btn-loader');
+        
         if (loadingContainer) {
             loadingContainer.remove();
         }
+        
+        generateBtn.disabled = false;
+        btnText.style.display = 'inline';
+        btnLoader.style.display = 'none';
     }
     
     showErrorMessage(message) {
@@ -143,6 +160,7 @@ class VintagePosterGenerator {
             <div class="error-message">
                 <h3>⚠️ Eroare</h3>
                 <p>${message}</p>
+                <button onclick="location.reload()" class="retry-btn">🔄 Încearcă din nou</button>
             </div>
         `;
     }
@@ -153,29 +171,29 @@ class VintagePosterGenerator {
         // Generate multiple variations using pollination approach
         const variations = [
             {
-                type: "Original Style",
+                type: "🎯 Originală",
                 destination: formData.destination,
                 colors: colors,
                 posterText: formData.posterText,
                 perspective: formData.perspective
             },
             {
-                type: "Alternative Perspective",
+                type: "🔄 Perspectivă Alternativă",
                 destination: formData.destination,
                 colors: colors,
                 posterText: formData.posterText,
                 perspective: this.getAlternativePerspective(formData.perspective)
             },
             {
-                type: "Color Variation",
+                type: "🎨 Variație de Culori",
                 destination: formData.destination,
                 colors: this.getComplementaryColors(colors),
                 posterText: formData.posterText,
                 perspective: formData.perspective
             },
             {
-                type: "Enhanced Details",
-                destination: `${formData.destination} with intricate architectural details`,
+                type: "✨ Detalii Îmbunătățite",
+                destination: `${formData.destination} with intricate architectural details and enhanced lighting`,
                 colors: colors,
                 posterText: formData.posterText,
                 perspective: "close-up architectural detail"
@@ -191,7 +209,7 @@ class VintagePosterGenerator {
             const variation = variations[i];
             
             // Add delay for animation effect
-            await new Promise(resolve => setTimeout(resolve, i * 500));
+            await new Promise(resolve => setTimeout(resolve, i * 300));
             
             if (formData.generateImages) {
                 await this.createPosterCardWithImage(variation, i, formData);
@@ -199,6 +217,23 @@ class VintagePosterGenerator {
                 this.createPosterCard(variation, i);
             }
         }
+        
+        // Show completion message
+        this.showCompletionMessage(variations.length, formData.generateImages);
+    }
+    
+    showCompletionMessage(count, withImages) {
+        const posterCardsContainer = document.getElementById('posterCards');
+        const completionDiv = document.createElement('div');
+        completionDiv.className = 'completion-message';
+        completionDiv.innerHTML = `
+            <div class="completion-content">
+                <h3>🎉 Generare completă!</h3>
+                <p>Am generat <strong>${count} variații</strong> ale posterului tău ${withImages ? 'cu imagini' : 'cu prompt-uri'}.</p>
+                <small>Folosește prompt-urile cu servicii AI cum ar fi Midjourney, DALL-E, sau Stable Diffusion pentru rezultate de înaltă calitate.</small>
+            </div>
+        `;
+        posterCardsContainer.appendChild(completionDiv);
     }
     
     async createPosterCardWithImage(data, index, formData) {
@@ -214,7 +249,7 @@ class VintagePosterGenerator {
             this.updateCardWithImages(card, imageVariations, index);
         } catch (error) {
             console.error('Error generating image:', error);
-            this.updateCardWithError(card, 'Nu s-a putut genera imaginea');
+            this.updateCardWithError(card, 'Nu s-a putut genera imaginea. Folosește prompt-ul pentru generare manuală.');
         }
         
         // Add to generated cards array
@@ -233,38 +268,38 @@ class VintagePosterGenerator {
             switch (i) {
                 case 0:
                     // Original style
-                    variationType = 'Original';
+                    variationType = '🎯 Originală';
                     break;
                 case 1:
                     // Add texture variation
-                    modifiedPrompt = modifiedPrompt.replace('subtle texture overlay', 'rich paper texture with vintage grain');
-                    variationType = 'Textured';
+                    modifiedPrompt = modifiedPrompt.replace('subtle texture overlay', 'rich vintage paper texture with aged patina and grain');
+                    variationType = '📜 Textură Vintage';
                     break;
                 case 2:
                     // Add lighting variation
-                    modifiedPrompt = modifiedPrompt.replace('stylized clouds and sun rays', 'dramatic lighting with golden hour atmosphere');
-                    variationType = 'Golden Hour';
+                    modifiedPrompt = modifiedPrompt.replace('stylized clouds and sun rays', 'dramatic golden hour lighting with warm atmospheric glow');
+                    variationType = '🌅 Golden Hour';
                     break;
                 case 3:
                     // Add composition variation
-                    modifiedPrompt = modifiedPrompt.replace('clean composition', 'dynamic composition with diagonal elements');
-                    variationType = 'Dynamic';
+                    modifiedPrompt = modifiedPrompt.replace('clean composition', 'dynamic asymmetrical composition with bold geometric elements');
+                    variationType = '⚡ Dinamică';
                     break;
                 default:
                     // Additional style variations
                     const styleModifiers = [
-                        'with enhanced contrast',
-                        'with softer color gradients',
-                        'with bold geometric patterns',
-                        'with minimalist approach'
+                        'with enhanced vintage color grading',
+                        'with softer watercolor gradients',
+                        'with bold art deco patterns',
+                        'with minimalist scandinavian approach'
                     ];
                     modifiedPrompt += ` ${styleModifiers[i % styleModifiers.length]}`;
-                    variationType = `Variation ${i + 1}`;
+                    variationType = `✨ Variația ${i + 1}`;
                     break;
             }
             
             try {
-                const imageData = await this.imageGenerator.generateImage(modifiedPrompt, data.posterText);
+                const imageData = await this.imageGenerator.generateImage(modifiedPrompt, data.posterText, i);
                 variations.push({
                     type: variationType,
                     imageData: imageData,
@@ -274,13 +309,13 @@ class VintagePosterGenerator {
                 console.error(`Error generating variation ${i + 1}:`, error);
                 variations.push({
                     type: variationType,
-                    error: 'Nu s-a putut genera imaginea',
+                    error: 'Generarea automată nu este disponibilă. Folosește prompt-ul pentru generare manuală.',
                     prompt: modifiedPrompt
                 });
             }
             
-            // Add delay between API calls to respect rate limits
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Add delay between generations
+            await new Promise(resolve => setTimeout(resolve, 500));
         }
         
         return variations;
@@ -297,14 +332,20 @@ class VintagePosterGenerator {
             if (variation.error) {
                 imageDiv.innerHTML = `
                     <div class="image-placeholder error">
-                        <p>❌ ${variation.error}</p>
-                        <small>${variation.type}</small>
+                        <div class="error-content">
+                            <p>🎨 ${variation.error}</p>
+                            <small>${variation.type}</small>
+                            <button class="copy-prompt-btn" onclick="copyToClipboard('variation-prompt-${index}-${vIndex}')">
+                                📋 Copiază Prompt-ul
+                            </button>
+                            <textarea id="variation-prompt-${index}-${vIndex}" style="display:none;">${variation.prompt}</textarea>
+                        </div>
                     </div>
                 `;
             } else {
                 imageDiv.innerHTML = `
                     <div class="image-wrapper">
-                        <img src="${variation.imageData.url}" alt="${variation.type} poster" loading="lazy">
+                        <img src="${variation.imageData.url}" alt="${variation.type} poster" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\"image-error\\">❌ Imagine nu poate fi încărcată</div>'">
                         <div class="image-overlay">
                             <button class="download-btn" onclick="downloadImage('${variation.imageData.url}', 'poster-${index}-${vIndex}.png')">
                                 ⬇️ Download
@@ -319,14 +360,19 @@ class VintagePosterGenerator {
         });
         
         // Add animation
-        imageContainer.classList.add('images-loaded');
+        setTimeout(() => {
+            imageContainer.classList.add('images-loaded');
+        }, 100);
     }
     
     updateCardWithError(card, errorMessage) {
         const imageContainer = card.querySelector('.image-container');
         imageContainer.innerHTML = `
             <div class="image-placeholder error">
-                <p>❌ ${errorMessage}</p>
+                <div class="error-content">
+                    <p>🎨 ${errorMessage}</p>
+                    <small>Folosește prompt-ul de mai jos pentru a genera manual imaginea</small>
+                </div>
             </div>
         `;
     }
@@ -358,7 +404,8 @@ class VintagePosterGenerator {
             <div class="image-container loading">
                 <div class="image-placeholder">
                     <div class="loading-spinner"></div>
-                    <p>Se generează imaginea...</p>
+                    <p>🎨 Se generează imaginea...</p>
+                    <small>Folosind metoda pollination</small>
                 </div>
             </div>
         ` : '';
@@ -367,15 +414,18 @@ class VintagePosterGenerator {
             <h3>${data.type}</h3>
             ${imageSection}
             <div class="poster-details">
-                <p><strong>Destination:</strong> ${data.destination}</p>
-                <p><strong>Colors:</strong> ${data.colors}</p>
-                <p><strong>Text:</strong> ${data.posterText}</p>
-                <p><strong>Style:</strong> ${data.perspective}</p>
+                <p><strong>🎯 Destinația:</strong> ${data.destination}</p>
+                <p><strong>🎨 Culorile:</strong> ${data.colors}</p>
+                <p><strong>📝 Textul:</strong> ${data.posterText}</p>
+                <p><strong>👁️ Stilul:</strong> ${data.perspective}</p>
                 ${this.createColorPalette(data.colors)}
             </div>
             <div class="poster-prompt">
-                <button class="copy-button" onclick="copyToClipboard('prompt-${index}')">Copy</button>
+                <button class="copy-button" onclick="copyToClipboard('prompt-${index}')">📋 Copiază</button>
                 <code id="prompt-${index}">${prompt}</code>
+            </div>
+            <div class="ai-services-info">
+                <small>💡 <strong>Folosește acest prompt cu:</strong> Midjourney, DALL-E, Stable Diffusion, Leonardo AI</small>
             </div>
         `;
         
@@ -447,7 +497,9 @@ class VintagePosterGenerator {
             'dusty rose, mint green, warm gray, and cream',
             'sage green, burnt orange, navy blue, and beige',
             'sunset orange, deep teal, golden yellow, and ivory',
-            'ice blue, pine green, snow white, and charcoal'
+            'ice blue, pine green, snow white, and charcoal',
+            'terracotta, sage green, cream, and charcoal',
+            'lavender, peach, mint green, and ivory'
         ];
         
         const alternatives = colorSets.filter(set => set !== originalColors);
@@ -463,12 +515,15 @@ class VintagePosterGenerator {
             templateCard.onclick = () => this.useTemplate(template);
             
             templateCard.innerHTML = `
-                <h3>${template.name}</h3>
+                <h3>🏛️ ${template.name}</h3>
                 <div class="template-preview">
-                    <p><strong>Destination:</strong> ${template.destination}</p>
-                    <p><strong>Text:</strong> ${template.posterText}</p>
+                    <p><strong>📍 Destinația:</strong> ${template.destination}</p>
+                    <p><strong>📝 Text:</strong> ${template.posterText}</p>
                 </div>
                 ${this.createColorPalette(template.colors)}
+                <div class="template-action">
+                    <small>👆 Click pentru a folosi acest template</small>
+                </div>
             `;
             
             templatesGrid.appendChild(templateCard);
@@ -488,59 +543,146 @@ class VintagePosterGenerator {
         
         if (matchingOption) {
             colorSelect.value = template.colors;
+            document.getElementById('customColorGroup').style.display = 'none';
         } else {
             colorSelect.value = 'custom';
             document.getElementById('customColors').value = template.colors;
             document.getElementById('customColorGroup').style.display = 'block';
         }
         
+        // Show success message
+        const successMsg = document.createElement('div');
+        successMsg.className = 'template-success';
+        successMsg.innerHTML = `✅ Template "${template.name}" încărcat cu succes!`;
+        document.querySelector('.form-section').prepend(successMsg);
+        
+        setTimeout(() => successMsg.remove(), 3000);
+        
         // Scroll to form
         document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
     }
 }
 
-// Image Generator API Class
+// Enhanced Image Generator API Class
 class ImageGeneratorAPI {
     constructor() {
-        // This would typically use an actual image generation API
-        // For demo purposes, we'll simulate with placeholder images
-        this.apiEndpoint = 'https://api.placeholder.com'; // Replace with actual API
+        this.demoMode = true; // Set to false when you have real API keys
+        this.apiEndpoint = 'demo'; // Replace with actual API endpoint
     }
     
-    async generateImage(prompt, posterText) {
+    async generateImage(prompt, posterText, variationIndex = 0) {
         // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 3000));
+        await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
         
-        // For demo purposes, return placeholder images
-        // In production, this would call an actual AI image generation API
-        const colors = ['4A90E2', 'F5A623', 'D0021B', '7ED321', 'BD10E0'];
-        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        if (this.demoMode) {
+            // Generate better placeholder images with more realistic poster-like appearance
+            const posterColors = ['e74c3c', '3498db', '2ecc71', 'f39c12', '9b59b6', '1abc9c'];
+            const baseColor = posterColors[variationIndex % posterColors.length];
+            
+            // Create a more poster-like URL using a service that supports text and styling
+            const cleanText = encodeURIComponent(posterText.substring(0, 20));
+            
+            // Using a better placeholder service or creating SVG data URL
+            const svgPoster = this.createSVGPoster(posterText, baseColor, variationIndex);
+            
+            return {
+                url: svgPoster,
+                width: 400,
+                height: 600,
+                prompt: prompt
+            };
+        }
         
-        return {
-            url: `https://via.placeholder.com/400x600/${randomColor}/FFFFFF?text=${encodeURIComponent(posterText)}`,
-            width: 400,
-            height: 600,
-            prompt: prompt
-        };
+        // Here you would implement real API calls to services like:
+        // - OpenAI DALL-E
+        // - Stability AI
+        // - Replicate
+        // - Midjourney API (when available)
+        
+        throw new Error('API real nu este configurat încă');
+    }
+    
+    createSVGPoster(text, color, variation) {
+        const variations = [
+            { bg: color, accent: 'ffffff', pattern: 'none' },
+            { bg: color, accent: 'f8f9fa', pattern: 'dots' },
+            { bg: color, accent: 'fff3cd', pattern: 'lines' },
+            { bg: color, accent: 'e7f3ff', pattern: 'geometric' }
+        ];
+        
+        const style = variations[variation % variations.length];
+        const cleanText = text.substring(0, 15).toUpperCase();
+        
+        const svg = `
+        <svg width="400" height="600" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="grad${variation}" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#${style.bg};stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#${style.bg}CC;stop-opacity:1" />
+                </linearGradient>
+                <filter id="shadow${variation}">
+                    <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.3)"/>
+                </filter>
+            </defs>
+            
+            <!-- Background -->
+            <rect width="400" height="600" fill="url(#grad${variation})"/>
+            
+            <!-- Pattern overlay -->
+            ${style.pattern === 'dots' ? 
+                '<circle cx="50" cy="50" r="3" fill="#ffffff20"/><circle cx="150" cy="100" r="3" fill="#ffffff20"/><circle cx="250" cy="150" r="3" fill="#ffffff20"/><circle cx="350" cy="200" r="3" fill="#ffffff20"/>' 
+                : ''}
+            ${style.pattern === 'lines' ? 
+                '<line x1="0" y1="100" x2="400" y2="100" stroke="#ffffff15" stroke-width="2"/><line x1="0" y1="200" x2="400" y2="200" stroke="#ffffff15" stroke-width="2"/>' 
+                : ''}
+            
+            <!-- Decorative elements -->
+            <rect x="20" y="20" width="360" height="560" fill="none" stroke="#${style.accent}" stroke-width="2" rx="10"/>
+            
+            <!-- Title area -->
+            <rect x="40" y="450" width="320" height="100" fill="#${style.accent}AA" rx="5"/>
+            
+            <!-- Main text -->
+            <text x="200" y="510" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#${color}">${cleanText}</text>
+            
+            <!-- Subtitle -->
+            <text x="200" y="530" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#${color}CC">VINTAGE TRAVEL POSTER</text>
+            
+            <!-- Decorative sun rays -->
+            <g transform="translate(200,200)">
+                <circle cx="0" cy="0" r="40" fill="#${style.accent}77"/>
+                <line x1="-60" y1="0" x2="60" y2="0" stroke="#${style.accent}" stroke-width="2"/>
+                <line x1="0" y1="-60" x2="0" y2="60" stroke="#${style.accent}" stroke-width="2"/>
+                <line x1="-42" y1="-42" x2="42" y2="42" stroke="#${style.accent}" stroke-width="1"/>
+                <line x1="42" y1="-42" x2="-42" y2="42" stroke="#${style.accent}" stroke-width="1"/>
+            </g>
+        </svg>`;
+        
+        // Convert SVG to data URL
+        return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
     }
 }
 
 // Utility functions
 function copyToClipboard(elementId) {
     const element = document.getElementById(elementId);
-    const text = element.textContent;
+    if (!element) return;
+    
+    const text = element.textContent || element.value;
     
     navigator.clipboard.writeText(text).then(() => {
         // Show feedback
-        const button = element.parentNode.querySelector('.copy-button');
-        const originalText = button.textContent;
-        button.textContent = 'Copied!';
-        button.style.background = '#48bb78';
-        
-        setTimeout(() => {
-            button.textContent = originalText;
-            button.style.background = '#667eea';
-        }, 2000);
+        const button = element.parentNode.querySelector('.copy-button, .copy-prompt-btn');
+        if (button) {
+            const originalText = button.textContent;
+            button.textContent = '✅ Copiat!';
+            button.style.background = '#48bb78';
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.style.background = '';
+            }, 2000);
+        }
     }).catch(() => {
         // Fallback for older browsers
         const textarea = document.createElement('textarea');
@@ -550,27 +692,64 @@ function copyToClipboard(elementId) {
         document.execCommand('copy');
         document.body.removeChild(textarea);
         
-        const button = element.parentNode.querySelector('.copy-button');
-        const originalText = button.textContent;
-        button.textContent = 'Copied!';
-        
-        setTimeout(() => {
-            button.textContent = originalText;
-        }, 2000);
+        const button = element.parentNode.querySelector('.copy-button, .copy-prompt-btn');
+        if (button) {
+            const originalText = button.textContent;
+            button.textContent = '✅ Copiat!';
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 2000);
+        }
     });
 }
 
 function downloadImage(imageUrl, filename) {
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = filename;
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+        const link = document.createElement('a');
+        link.href = imageUrl;
+        link.download = filename;
+        link.target = '_blank';
+        
+        // For SVG data URLs, we need to handle them specially
+        if (imageUrl.startsWith('data:image/svg+xml')) {
+            // Convert SVG to PNG via canvas
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 400;
+                canvas.height = 600;
+                
+                ctx.drawImage(img, 0, 0);
+                
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = url;
+                    downloadLink.download = filename.replace('.png', '_poster.png');
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                    URL.revokeObjectURL(url);
+                });
+            };
+            img.src = imageUrl;
+        } else {
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    } catch (error) {
+        alert('Nu s-a putut descărca imaginea. Te rog să faci click dreapta și "Salvează imaginea ca..."');
+    }
 }
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
     new VintagePosterGenerator();
+    
+    // Add some helpful tips
+    console.log('🎨 Vintage Poster Generator încărcat!');
+    console.log('💡 Tip: Pentru rezultate de înaltă calitate, folosește prompt-urile generate cu servicii AI profesionale.');
 });
