@@ -1,4 +1,4 @@
-// Vintage Travel Poster Generator with Real Pollinations.ai Integration
+// Vintage Travel Poster Generator with Sequential Pollinations.ai Integration
 
 class VintagePosterGenerator {
     constructor() {
@@ -10,14 +10,14 @@ class VintagePosterGenerator {
                 destination: "Eiffel Tower at golden sunset with Parisian rooftops",
                 colors: "coral pink, turquoise, mustard yellow, and cream",
                 posterText: "PARIS",
-                perspective: "dramatic low angle perspective"
+                perspective: "dramatic perspective"
             },
             {
                 name: "Santorini Dreams", 
                 destination: "white-washed Greek buildings with blue domes overlooking the Aegean Sea",
                 colors: "sunset orange, deep teal, golden yellow, and ivory",
                 posterText: "SANTORINI",
-                perspective: "panoramic coastal landscape"
+                perspective: "panoramic landscape"
             },
             {
                 name: "Tokyo Modern",
@@ -43,7 +43,7 @@ class VintagePosterGenerator {
             {
                 name: "Swiss Alps Adventure",
                 destination: "snow-capped Alpine peaks with vintage cable car",
-                colors: "ice blue, pine green, snow white, and charcoal",
+                colors: "dusty rose, mint green, warm gray, and cream",
                 posterText: "SWISS ALPS",
                 perspective: "dramatic mountain perspective"
             }
@@ -57,7 +57,6 @@ class VintagePosterGenerator {
         this.setupEventListeners();
         this.renderTemplates();
         this.setupColorSchemeHandler();
-        this.setupImageGenerationToggle();
     }
     
     setupEventListeners() {
@@ -78,25 +77,11 @@ class VintagePosterGenerator {
         });
     }
     
-    setupImageGenerationToggle() {
-        const toggleSwitch = document.getElementById('generateImages');
-        if (toggleSwitch) {
-            toggleSwitch.addEventListener('change', (e) => {
-                const advancedOptions = document.getElementById('advancedOptions');
-                if (e.target.checked) {
-                    advancedOptions.style.display = 'block';
-                } else {
-                    advancedOptions.style.display = 'none';
-                }
-            });
-        }
-    }
-    
     async handleFormSubmit(e) {
         e.preventDefault();
         
         if (this.isGenerating) {
-            return; // Prevent multiple simultaneous generations
+            return;
         }
         
         const formData = {
@@ -118,10 +103,10 @@ class VintagePosterGenerator {
         this.showLoadingState();
         
         try {
-            await this.generatePoster(formData);
+            await this.generatePosters(formData);
         } catch (error) {
-            console.error('Error generating poster:', error);
-            this.showError('A apărut o eroare la generarea posterului. Te rog încearcă din nou.');
+            console.error('Error generating posters:', error);
+            this.showError('A apărut o eroare la generarea posterelor. Te rog încearcă din nou.');
         } finally {
             this.isGenerating = false;
             this.hideLoadingState();
@@ -141,9 +126,9 @@ class VintagePosterGenerator {
         posterCardsContainer.innerHTML = `
             <div class="loading-container">
                 <div class="loading-spinner"></div>
-                <h3>🎨 Se generează posterul...</h3>
-                <p>Folosim Pollinations.ai pentru a crea posterul tău vintage</p>
-                <small>Aceasta poate dura 10-30 de secunde</small>
+                <h3>🎨 Se generează posterele...</h3>
+                <p>Folosim Pollinations.ai pentru a crea 4 variații secvențial</p>
+                <small>Aceasta poate dura 1-2 minute pentru toate imaginile</small>
             </div>
         `;
     }
@@ -169,63 +154,192 @@ class VintagePosterGenerator {
         `;
     }
     
-    async generatePoster(formData) {
+    async generatePosters(formData) {
         const colors = formData.colorScheme === 'custom' ? formData.customColors : formData.colorScheme;
         
-        // Generate ONE high-quality poster prompt
-        const posterData = {
-            destination: formData.destination,
-            colors: colors,
-            posterText: formData.posterText,
-            perspective: formData.perspective
-        };
+        // Generate 4 variations with different approaches
+        const variations = [
+            {
+                type: "🎯 Originală",
+                destination: formData.destination,
+                colors: colors,
+                posterText: formData.posterText,
+                perspective: formData.perspective
+            },
+            {
+                type: "🔄 Perspectivă Alternativă",
+                destination: formData.destination,
+                colors: colors,
+                posterText: formData.posterText,
+                perspective: this.getAlternativePerspective(formData.perspective)
+            },
+            {
+                type: "🎨 Variație de Culori",
+                destination: formData.destination,
+                colors: this.getComplementaryColors(colors),
+                posterText: formData.posterText,
+                perspective: formData.perspective
+            },
+            {
+                type: "✨ Detalii Îmbunătățite",
+                destination: `${formData.destination} with intricate architectural details and enhanced lighting`,
+                colors: colors,
+                posterText: formData.posterText,
+                perspective: "close-up architectural detail"
+            }
+        ];
         
-        const prompt = this.generatePrompt(posterData);
-        
-        // Clear previous results
+        // Clear previous results and setup grid
         const posterCardsContainer = document.getElementById('posterCards');
+        posterCardsContainer.innerHTML = '<div class="posters-grid"></div>';
+        const postersGrid = posterCardsContainer.querySelector('.posters-grid');
+        
+        // Create cards for each variation
+        variations.forEach((variation, index) => {
+            const card = this.createPosterCard(variation, index);
+            postersGrid.appendChild(card);
+        });
         
         if (formData.generateImages) {
-            // Generate real image using Pollinations.ai
-            const imageUrl = await this.generatePollinationsImage(prompt);
-            posterCardsContainer.innerHTML = this.createImageCard(posterData, prompt, imageUrl);
-        } else {
-            // Show only prompt
-            posterCardsContainer.innerHTML = this.createPromptCard(posterData, prompt);
+            // Generate images SEQUENTIALLY to avoid rate limiting
+            for (let i = 0; i < variations.length; i++) {
+                await this.generateImageForCard(variations[i], i);
+                // Add a small delay between generations
+                if (i < variations.length - 1) {
+                    await this.delay(1000);
+                }
+            }
         }
         
-        // Show success message
-        setTimeout(() => {
-            this.showSuccessMessage(formData.generateImages);
-        }, 1000);
+        this.showSuccessMessage(variations.length, formData.generateImages);
+    }
+    
+    createPosterCard(data, index) {
+        const prompt = this.generatePrompt(data);
+        const card = document.createElement('div');
+        card.className = 'poster-card';
+        card.innerHTML = `
+            <h3>${data.type}</h3>
+            
+            <div class="image-section" id="image-section-${index}">
+                <div class="image-wrapper">
+                    <div class="image-loader" id="loader-${index}">
+                        <div class="spinner"></div>
+                        <p>Se generează imaginea...</p>
+                        <small>Pollinations.ai</small>
+                    </div>
+                    <img id="image-${index}" class="generated-poster" style="display:none;" alt="Poster pentru ${data.posterText}">
+                    <div class="image-actions" id="actions-${index}" style="display:none;">
+                        <button class="action-btn download-btn" id="download-${index}">
+                            ⬇️ Descarcă
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="poster-details">
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <strong>🏛️ Destinația:</strong> ${this.escapeHtml(data.destination)}
+                    </div>
+                    <div class="detail-item">
+                        <strong>🎨 Culorile:</strong> ${this.escapeHtml(data.colors)}
+                    </div>
+                    <div class="detail-item">
+                        <strong>📝 Textul:</strong> ${this.escapeHtml(data.posterText)}
+                    </div>
+                    <div class="detail-item">
+                        <strong>👁️ Perspectiva:</strong> ${this.escapeHtml(data.perspective)}
+                    </div>
+                </div>
+                ${this.createColorPalette(data.colors)}
+            </div>
+            
+            <div class="prompt-section">
+                <h4>📋 Prompt-ul Generat</h4>
+                <div class="prompt-box">
+                    <button class="copy-btn" onclick="copyToClipboard('prompt-${index}')" title="Copiază prompt-ul">📋 Copiază</button>
+                    <pre id="prompt-${index}">${this.escapeHtml(prompt)}</pre>
+                </div>
+                <div class="prompt-info">
+                    <small>💡 <strong>Tip:</strong> Folosește acest prompt cu Midjourney, DALL-E, sau Stable Diffusion</small>
+                </div>
+            </div>
+        `;
+        
+        return card;
+    }
+    
+    async generateImageForCard(data, index) {
+        try {
+            const prompt = this.generatePrompt(data);
+            const imageUrl = await this.generatePollinationsImage(prompt);
+            
+            const img = document.getElementById(`image-${index}`);
+            const loader = document.getElementById(`loader-${index}`);
+            const actions = document.getElementById(`actions-${index}`);
+            const downloadBtn = document.getElementById(`download-${index}`);
+            
+            // Wait for actual image load
+            await this.loadImage(imageUrl);
+            
+            img.src = imageUrl;
+            img.style.display = 'block';
+            loader.style.display = 'none';
+            actions.style.display = 'flex';
+            
+            // Setup download button
+            downloadBtn.onclick = () => {
+                const a = document.createElement('a');
+                a.href = imageUrl;
+                a.download = `${data.posterText.toLowerCase().replace(/\s+/g, '-')}-${index + 1}.jpg`;
+                a.click();
+            };
+            
+        } catch (error) {
+            console.error(`Error generating image ${index + 1}:`, error);
+            const loader = document.getElementById(`loader-${index}`);
+            loader.innerHTML = `
+                <div class="error-content">
+                    <p>❌ Eroare la generare</p>
+                    <small>Folosește prompt-ul pentru generare manuală</small>
+                </div>
+            `;
+        }
     }
     
     async generatePollinationsImage(prompt) {
-        try {
-            // Construct Pollinations.ai URL following official documentation
-            const baseUrl = 'https://image.pollinations.ai/prompt/';
-            const encodedPrompt = encodeURIComponent(prompt);
+        const baseUrl = 'https://image.pollinations.ai/prompt/';
+        const encodedPrompt = encodeURIComponent(prompt);
+        
+        const params = new URLSearchParams({
+            width: '1024',
+            height: '1536',
+            model: 'flux',
+            enhance: 'true',
+            nologo: 'true',
+            seed: Math.floor(Math.random() * 1000000),
+            referrer: 'vintage-poster-generator'
+        });
+        
+        return `${baseUrl}${encodedPrompt}?${params.toString()}`;
+    }
+    
+    // Promise-based image loading to ensure sequential generation
+    loadImage(url) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = () => reject(new Error('Failed to load image'));
+            img.src = url;
             
-            // Parameters for high-quality vintage poster
-            const params = new URLSearchParams({
-                width: '1024',        // Good quality
-                height: '1536',       // 2:3 aspect ratio for posters
-                model: 'flux',        // Best quality model
-                enhance: 'true',      // Let AI enhance the prompt
-                nologo: 'true',       // Remove logo if possible
-                seed: Math.floor(Math.random() * 1000000), // Random seed for variety
-                referrer: 'vintage-poster-generator'
-            });
-            
-            const fullUrl = `${baseUrl}${encodedPrompt}?${params.toString()}`;
-            
-            console.log('Generated Pollinations URL:', fullUrl);
-            return fullUrl;
-            
-        } catch (error) {
-            console.error('Error creating Pollinations URL:', error);
-            throw error;
-        }
+            // Timeout after 30 seconds
+            setTimeout(() => reject(new Error('Image load timeout')), 30000);
+        });
+    }
+    
+    delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
     
     generatePrompt(data) {
@@ -236,147 +350,30 @@ class VintagePosterGenerator {
             .replace('[PERSPECTIVE]', data.perspective);
     }
     
-    createImageCard(data, prompt, imageUrl) {
-        const safeText = this.escapeHtml(data.posterText);
-        const safeDestination = this.escapeHtml(data.destination);
-        const downloadFilename = `${safeText.toLowerCase().replace(/\s+/g, '-')}-poster`;
+    getAlternativePerspective(current) {
+        const perspectives = [
+            'dramatic perspective',
+            'bird\'s eye view',
+            'close-up architectural detail',
+            'panoramic landscape'
+        ];
         
-        return `
-            <div class="poster-card main-poster">
-                <h3>🎨 Posterul Tău Vintage</h3>
-                
-                <div class="image-section">
-                    <div class="image-wrapper">
-                        <div class="image-loader" id="imageLoader">
-                            <div class="spinner"></div>
-                            <p>Se încarcă posterul de la Pollinations.ai...</p>
-                            <small>Timp estimat: 10-30 secunde</small>
-                        </div>
-                        
-                        <img src="${imageUrl}" 
-                             alt="Poster vintage pentru ${safeDestination}"
-                             class="generated-poster"
-                             onload="this.style.opacity='1'; document.getElementById('imageLoader').style.display='none'; document.querySelector('.image-actions').style.display='flex';"
-                             onerror="document.getElementById('imageLoader').innerHTML='<div class=\"error\">❌ Imaginea nu s-a putut genera. Pollinations.ai este temporar indisponibil.</div>'; document.querySelector('.download-actions').style.display='block';">
-                        
-                        <div class="image-actions" style="display:none;">
-                            <a href="${imageUrl}" target="_blank" download="${downloadFilename}.jpg" class="action-btn download-btn">
-                                ⬇️ Descarcă Posterul
-                            </a>
-                            <button onclick="this.previousElementSibling.click()" class="action-btn secondary-btn">
-                                🔗 Deschide în Tab Nou
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="poster-details">
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <strong>🏛️ Destinația:</strong> ${safeDestination}
-                        </div>
-                        <div class="detail-item">
-                            <strong>🎨 Culorile:</strong> ${this.escapeHtml(data.colors)}
-                        </div>
-                        <div class="detail-item">
-                            <strong>📝 Textul:</strong> ${safeText}
-                        </div>
-                        <div class="detail-item">
-                            <strong>👁️ Perspectiva:</strong> ${this.escapeHtml(data.perspective)}
-                        </div>
-                    </div>
-                    ${this.createColorPalette(data.colors)}
-                </div>
-                
-                <div class="prompt-section">
-                    <h4>📋 Prompt-ul Generat</h4>
-                    <div class="prompt-box">
-                        <button class="copy-btn" onclick="copyToClipboard('mainPrompt')" title="Copiază prompt-ul">📋 Copiază</button>
-                        <pre id="mainPrompt">${this.escapeHtml(prompt)}</pre>
-                    </div>
-                    <div class="prompt-info">
-                        <small>💡 <strong>Tip:</strong> Folosește acest prompt cu Midjourney (/imagine), DALL-E, sau Stable Diffusion pentru rezultate profesionale</small>
-                    </div>
-                </div>
-                
-                <div class="download-actions" style="display:none;">
-                    <p>🎯 <strong>Prompt-ul este gata!</strong> Copiază-l și folosește-l cu serviciile AI preferate:</p>
-                    <div class="service-links">
-                        <a href="https://www.midjourney.com" target="_blank" class="service-btn midjourney">Midjourney</a>
-                        <a href="https://openai.com/dall-e-3" target="_blank" class="service-btn dalle">DALL-E</a>
-                        <a href="https://stability.ai" target="_blank" class="service-btn stable">Stable Diffusion</a>
-                    </div>
-                </div>
-            </div>
-        `;
+        const alternatives = perspectives.filter(p => p !== current);
+        return alternatives[Math.floor(Math.random() * alternatives.length)];
     }
     
-    createPromptCard(data, prompt) {
-        const safeText = this.escapeHtml(data.posterText);
-        const safeDestination = this.escapeHtml(data.destination);
+    getComplementaryColors(originalColors) {
+        const colorSets = [
+            'burgundy, forest green, gold, and off-white',
+            'dusty rose, mint green, warm gray, and cream',
+            'sage green, burnt orange, navy blue, and beige',
+            'sunset orange, deep teal, golden yellow, and ivory',
+            'ice blue, pine green, snow white, and charcoal',
+            'terracotta, sage green, cream, and charcoal'
+        ];
         
-        return `
-            <div class="poster-card prompt-only">
-                <h3>📝 Prompt-ul Posterului</h3>
-                
-                <div class="poster-details">
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <strong>🏛️ Destinația:</strong> ${safeDestination}
-                        </div>
-                        <div class="detail-item">
-                            <strong>🎨 Culorile:</strong> ${this.escapeHtml(data.colors)}
-                        </div>
-                        <div class="detail-item">
-                            <strong>📝 Textul:</strong> ${safeText}
-                        </div>
-                        <div class="detail-item">
-                            <strong>👁️ Perspectiva:</strong> ${this.escapeHtml(data.perspective)}
-                        </div>
-                    </div>
-                    ${this.createColorPalette(data.colors)}
-                </div>
-                
-                <div class="prompt-section">
-                    <div class="prompt-box">
-                        <button class="copy-btn" onclick="copyToClipboard('promptOnly')" title="Copiază prompt-ul">📋 Copiază Prompt-ul</button>
-                        <pre id="promptOnly">${this.escapeHtml(prompt)}</pre>
-                    </div>
-                </div>
-                
-                <div class="ai-services">
-                    <h4>🤖 Folosește cu aceste servicii AI:</h4>
-                    <div class="service-links">
-                        <a href="https://www.midjourney.com" target="_blank" class="service-btn midjourney">🎨 Midjourney</a>
-                        <a href="https://openai.com/dall-e-3" target="_blank" class="service-btn dalle">🖼️ DALL-E</a>
-                        <a href="https://stability.ai" target="_blank" class="service-btn stable">⚡ Stable Diffusion</a>
-                        <a href="https://leonardo.ai" target="_blank" class="service-btn leonardo">🖌️ Leonardo AI</a>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-    
-    showSuccessMessage(withImage) {
-        const posterCardsContainer = document.getElementById('posterCards');
-        const successMsg = document.createElement('div');
-        successMsg.className = 'success-message';
-        successMsg.innerHTML = `
-            <div class="success-content">
-                <h3>🎉 Generat cu succes!</h3>
-                <p>Posterul tău vintage ${withImage ? 'și imaginea au fost generate' : 'a fost configurat'}!</p>
-                ${withImage ? '<small>Imaginea poate dura câteva secunde să se încarce complet.</small>' : '<small>Copiază prompt-ul și folosește-l cu serviciile AI preferate.</small>'}
-            </div>
-        `;
-        
-        posterCardsContainer.appendChild(successMsg);
-        
-        // Remove success message after 5 seconds
-        setTimeout(() => {
-            if (successMsg.parentNode) {
-                successMsg.remove();
-            }
-        }, 5000);
+        const alternatives = colorSets.filter(set => set !== originalColors);
+        return alternatives[Math.floor(Math.random() * alternatives.length)];
     }
     
     createColorPalette(colorString) {
@@ -404,7 +401,8 @@ class VintagePosterGenerator {
             'ice blue': '#B0E0E6',
             'pine green': '#01796F',
             'snow white': '#FFFAFA',
-            'charcoal': '#36454F'
+            'charcoal': '#36454F',
+            'terracotta': '#E2725B'
         };
         
         let paletteHTML = '<div class="color-palette"><span class="palette-label">Paleta de culori:</span>';
@@ -424,6 +422,28 @@ class VintagePosterGenerator {
         }
         const color = Math.abs(hash).toString(16).substring(0, 6);
         return '#' + '000000'.substring(0, 6 - color.length) + color;
+    }
+    
+    showSuccessMessage(count, withImages) {
+        const posterCardsContainer = document.getElementById('posterCards');
+        const successMsg = document.createElement('div');
+        successMsg.className = 'success-message';
+        successMsg.innerHTML = `
+            <div class="success-content">
+                <h3>🎉 Generat cu succes!</h3>
+                <p>Am generat <strong>${count} variații</strong> ale posterului tău ${withImages ? 'cu imagini' : 'cu prompt-uri'}!</p>
+                ${withImages ? '<small>Toate imaginile au fost generate secvențial pentru fiabilitate maximă.</small>' : '<small>Copiază prompt-urile și folosește-le cu serviciile AI preferate.</small>'}
+            </div>
+        `;
+        
+        posterCardsContainer.appendChild(successMsg);
+        
+        // Remove success message after 5 seconds
+        setTimeout(() => {
+            if (successMsg.parentNode) {
+                successMsg.remove();
+            }
+        }, 8000);
     }
     
     escapeHtml(unsafe) {
@@ -517,20 +537,6 @@ function copyToClipboard(elementId) {
     const text = element.textContent || element.value;
     
     navigator.clipboard.writeText(text).then(() => {
-        // Find the copy button
-        const button = element.parentNode.querySelector('.copy-btn');
-        if (button) {
-            const originalText = button.innerHTML;
-            button.innerHTML = '✅ Copiat!';
-            button.style.background = '#28a745';
-            
-            setTimeout(() => {
-                button.innerHTML = originalText;
-                button.style.background = '';
-            }, 2000);
-        }
-        
-        // Show global notification
         showNotification('📋 Prompt copiat în clipboard!', 'success');
     }).catch(err => {
         console.error('Copy failed:', err);
@@ -576,12 +582,5 @@ document.addEventListener('DOMContentLoaded', () => {
     new VintagePosterGenerator();
     
     console.log('🎨 Vintage Poster Generator încărcat cu succes!');
-    console.log('🔗 Powered by Pollinations.ai');
-    
-    // Add smooth loading animation
-    document.body.style.opacity = '0';
-    setTimeout(() => {
-        document.body.style.opacity = '1';
-        document.body.style.transition = 'opacity 0.5s ease';
-    }, 100);
+    console.log('🔗 Powered by Pollinations.ai cu generare secvențială');
 });
