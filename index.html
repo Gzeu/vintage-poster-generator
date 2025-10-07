@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vintage Travel Poster Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Vintage Travel Poster Generator</h1>
+            <p>Create beautiful mid-century modern travel posters with customizable variables</p>
+        </header>
+
+        <div class="main-content">
+            <div class="form-section">
+                <h2>Customize Your Poster</h2>
+                <form id="posterForm">
+                    <div class="form-group">
+                        <label for="destination">Destination/Landmark:</label>
+                        <input type="text" id="destination" placeholder="e.g., Paris, Eiffel Tower, Santorini" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="colorScheme">Color Scheme:</label>
+                        <select id="colorScheme">
+                            <option value="coral pink, turquoise, mustard yellow, and cream">Coral & Turquoise</option>
+                            <option value="sunset orange, deep teal, golden yellow, and ivory">Sunset Orange & Teal</option>
+                            <option value="sage green, burnt orange, navy blue, and beige">Sage & Navy</option>
+                            <option value="burgundy, forest green, gold, and off-white">Burgundy & Forest</option>
+                            <option value="dusty rose, mint green, warm gray, and cream">Rose & Mint</option>
+                            <option value="custom">Custom Colors</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="customColorGroup" style="display: none;">
+                        <label for="customColors">Custom Color Scheme:</label>
+                        <input type="text" id="customColors" placeholder="e.g., red, blue, yellow, white">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="destinationName">Poster Text:</label>
+                        <input type="text" id="destinationName" placeholder="Text to display on poster" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="style">Additional Style Elements:</label>
+                        <select id="style">
+                            <option value="dramatic perspective">Dramatic Perspective</option>
+                            <option value="bird's eye view">Bird's Eye View</option>
+                            <option value="close-up architectural detail">Architectural Detail</option>
+                            <option value="panoramic landscape">Panoramic Landscape</option>
+                        </select>
+                    </div>
+
+                    <button type="submit">Generate Poster Prompt</button>
+                </form>
+            </div>
+
+            <div class="output-section">
+                <h2>Generated Poster Cards</h2>
+                <div id="posterCards"></div>
+            </div>
+        </div>
+
+        <div class="templates-section">
+            <h2>Pre-made Templates</h2>
+            <div class="templates-grid" id="templatesGrid"></div>
+        </div>
+
+        <footer>
+            <p>Built with ❤️ for vintage travel poster enthusiasts</p>
+            <p><a href="https://github.com/Gzeu/vintage-poster-generator" target="_blank">View on GitHub</a></p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
