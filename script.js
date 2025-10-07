@@ -1,4 +1,4 @@
-// Vintage Travel Poster Generator JavaScript
+// Vintage Travel Poster Generator JavaScript with Image Generation
 
 class VintagePosterGenerator {
     constructor() {
@@ -50,6 +50,7 @@ class VintagePosterGenerator {
         ];
         
         this.generatedCards = [];
+        this.imageGenerator = new ImageGeneratorAPI();
         this.init();
     }
     
@@ -57,6 +58,7 @@ class VintagePosterGenerator {
         this.setupEventListeners();
         this.renderTemplates();
         this.setupColorSchemeHandler();
+        this.setupImageGenerationToggle();
     }
     
     setupEventListeners() {
@@ -77,7 +79,21 @@ class VintagePosterGenerator {
         });
     }
     
-    handleFormSubmit(e) {
+    setupImageGenerationToggle() {
+        const toggleSwitch = document.getElementById('generateImages');
+        if (toggleSwitch) {
+            toggleSwitch.addEventListener('change', (e) => {
+                const advancedOptions = document.getElementById('advancedOptions');
+                if (e.target.checked) {
+                    advancedOptions.style.display = 'block';
+                } else {
+                    advancedOptions.style.display = 'none';
+                }
+            });
+        }
+    }
+    
+    async handleFormSubmit(e) {
         e.preventDefault();
         
         const formData = {
@@ -85,13 +101,53 @@ class VintagePosterGenerator {
             colorScheme: document.getElementById('colorScheme').value,
             customColors: document.getElementById('customColors').value,
             posterText: document.getElementById('destinationName').value,
-            perspective: document.getElementById('style').value
+            perspective: document.getElementById('style').value,
+            generateImages: document.getElementById('generateImages')?.checked || false,
+            imageCount: document.getElementById('imageCount')?.value || 2,
+            imageStyle: document.getElementById('imageStyle')?.value || 'detailed'
         };
         
-        this.generatePosterVariations(formData);
+        // Show loading state
+        this.showLoadingState();
+        
+        try {
+            await this.generatePosterVariations(formData);
+        } catch (error) {
+            console.error('Error generating posters:', error);
+            this.showErrorMessage('A apărut o eroare la generarea posterelor. Încercați din nou.');
+        } finally {
+            this.hideLoadingState();
+        }
     }
     
-    generatePosterVariations(formData) {
+    showLoadingState() {
+        const posterCardsContainer = document.getElementById('posterCards');
+        posterCardsContainer.innerHTML = `
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <p>Se generează posterele și imaginile... Te rog să aștepți.</p>
+            </div>
+        `;
+    }
+    
+    hideLoadingState() {
+        const loadingContainer = document.querySelector('.loading-container');
+        if (loadingContainer) {
+            loadingContainer.remove();
+        }
+    }
+    
+    showErrorMessage(message) {
+        const posterCardsContainer = document.getElementById('posterCards');
+        posterCardsContainer.innerHTML = `
+            <div class="error-message">
+                <h3>⚠️ Eroare</h3>
+                <p>${message}</p>
+            </div>
+        `;
+    }
+    
+    async generatePosterVariations(formData) {
         const colors = formData.colorScheme === 'custom' ? formData.customColors : formData.colorScheme;
         
         // Generate multiple variations using pollination approach
@@ -131,16 +187,153 @@ class VintagePosterGenerator {
         posterCardsContainer.innerHTML = '';
         
         // Generate cards for each variation
-        variations.forEach((variation, index) => {
-            setTimeout(() => {
-                this.createPosterCard(variation, index);
-            }, index * 200); // Stagger the animations
+        for (let i = 0; i < variations.length; i++) {
+            const variation = variations[i];
+            
+            // Add delay for animation effect
+            await new Promise(resolve => setTimeout(resolve, i * 500));
+            
+            if (formData.generateImages) {
+                await this.createPosterCardWithImage(variation, i, formData);
+            } else {
+                this.createPosterCard(variation, i);
+            }
+        }
+    }
+    
+    async createPosterCardWithImage(data, index, formData) {
+        const prompt = this.generatePrompt(data);
+        const card = this.createCardElement(data, prompt, index, true);
+        
+        const posterCardsContainer = document.getElementById('posterCards');
+        posterCardsContainer.appendChild(card);
+        
+        // Generate image using pollination approach
+        try {
+            const imageVariations = await this.generateImageVariations(prompt, data, formData);
+            this.updateCardWithImages(card, imageVariations, index);
+        } catch (error) {
+            console.error('Error generating image:', error);
+            this.updateCardWithError(card, 'Nu s-a putut genera imaginea');
+        }
+        
+        // Add to generated cards array
+        this.generatedCards.push({ data, prompt });
+    }
+    
+    async generateImageVariations(basePrompt, data, formData) {
+        const imageCount = parseInt(formData.imageCount) || 2;
+        const variations = [];
+        
+        // Create multiple image variations using different approaches
+        for (let i = 0; i < imageCount; i++) {
+            let modifiedPrompt = basePrompt;
+            let variationType = '';
+            
+            switch (i) {
+                case 0:
+                    // Original style
+                    variationType = 'Original';
+                    break;
+                case 1:
+                    // Add texture variation
+                    modifiedPrompt = modifiedPrompt.replace('subtle texture overlay', 'rich paper texture with vintage grain');
+                    variationType = 'Textured';
+                    break;
+                case 2:
+                    // Add lighting variation
+                    modifiedPrompt = modifiedPrompt.replace('stylized clouds and sun rays', 'dramatic lighting with golden hour atmosphere');
+                    variationType = 'Golden Hour';
+                    break;
+                case 3:
+                    // Add composition variation
+                    modifiedPrompt = modifiedPrompt.replace('clean composition', 'dynamic composition with diagonal elements');
+                    variationType = 'Dynamic';
+                    break;
+                default:
+                    // Additional style variations
+                    const styleModifiers = [
+                        'with enhanced contrast',
+                        'with softer color gradients',
+                        'with bold geometric patterns',
+                        'with minimalist approach'
+                    ];
+                    modifiedPrompt += ` ${styleModifiers[i % styleModifiers.length]}`;
+                    variationType = `Variation ${i + 1}`;
+                    break;
+            }
+            
+            try {
+                const imageData = await this.imageGenerator.generateImage(modifiedPrompt, data.posterText);
+                variations.push({
+                    type: variationType,
+                    imageData: imageData,
+                    prompt: modifiedPrompt
+                });
+            } catch (error) {
+                console.error(`Error generating variation ${i + 1}:`, error);
+                variations.push({
+                    type: variationType,
+                    error: 'Nu s-a putut genera imaginea',
+                    prompt: modifiedPrompt
+                });
+            }
+            
+            // Add delay between API calls to respect rate limits
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        
+        return variations;
+    }
+    
+    updateCardWithImages(card, imageVariations, index) {
+        const imageContainer = card.querySelector('.image-container');
+        imageContainer.innerHTML = '';
+        
+        imageVariations.forEach((variation, vIndex) => {
+            const imageDiv = document.createElement('div');
+            imageDiv.className = 'image-variation';
+            
+            if (variation.error) {
+                imageDiv.innerHTML = `
+                    <div class="image-placeholder error">
+                        <p>❌ ${variation.error}</p>
+                        <small>${variation.type}</small>
+                    </div>
+                `;
+            } else {
+                imageDiv.innerHTML = `
+                    <div class="image-wrapper">
+                        <img src="${variation.imageData.url}" alt="${variation.type} poster" loading="lazy">
+                        <div class="image-overlay">
+                            <button class="download-btn" onclick="downloadImage('${variation.imageData.url}', 'poster-${index}-${vIndex}.png')">
+                                ⬇️ Download
+                            </button>
+                            <span class="image-type">${variation.type}</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            imageContainer.appendChild(imageDiv);
         });
+        
+        // Add animation
+        imageContainer.classList.add('images-loaded');
+    }
+    
+    updateCardWithError(card, errorMessage) {
+        const imageContainer = card.querySelector('.image-container');
+        imageContainer.innerHTML = `
+            <div class="image-placeholder error">
+                <p>❌ ${errorMessage}</p>
+            </div>
+        `;
     }
     
     createPosterCard(data, index) {
         const prompt = this.generatePrompt(data);
-        const card = this.createCardElement(data, prompt, index);
+        const card = this.createCardElement(data, prompt, index, false);
         
         const posterCardsContainer = document.getElementById('posterCards');
         posterCardsContainer.appendChild(card);
@@ -157,12 +350,22 @@ class VintagePosterGenerator {
             .replace('[PERSPECTIVE]', data.perspective);
     }
     
-    createCardElement(data, prompt, index) {
+    createCardElement(data, prompt, index, withImages) {
         const card = document.createElement('div');
         card.className = 'poster-card new';
         
+        const imageSection = withImages ? `
+            <div class="image-container loading">
+                <div class="image-placeholder">
+                    <div class="loading-spinner"></div>
+                    <p>Se generează imaginea...</p>
+                </div>
+            </div>
+        ` : '';
+        
         card.innerHTML = `
             <h3>${data.type}</h3>
+            ${imageSection}
             <div class="poster-details">
                 <p><strong>Destination:</strong> ${data.destination}</p>
                 <p><strong>Colors:</strong> ${data.colors}</p>
@@ -296,6 +499,32 @@ class VintagePosterGenerator {
     }
 }
 
+// Image Generator API Class
+class ImageGeneratorAPI {
+    constructor() {
+        // This would typically use an actual image generation API
+        // For demo purposes, we'll simulate with placeholder images
+        this.apiEndpoint = 'https://api.placeholder.com'; // Replace with actual API
+    }
+    
+    async generateImage(prompt, posterText) {
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 3000));
+        
+        // For demo purposes, return placeholder images
+        // In production, this would call an actual AI image generation API
+        const colors = ['4A90E2', 'F5A623', 'D0021B', '7ED321', 'BD10E0'];
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        
+        return {
+            url: `https://via.placeholder.com/400x600/${randomColor}/FFFFFF?text=${encodeURIComponent(posterText)}`,
+            width: 400,
+            height: 600,
+            prompt: prompt
+        };
+    }
+}
+
 // Utility functions
 function copyToClipboard(elementId) {
     const element = document.getElementById(elementId);
@@ -329,6 +558,16 @@ function copyToClipboard(elementId) {
             button.textContent = originalText;
         }, 2000);
     });
+}
+
+function downloadImage(imageUrl, filename) {
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = filename;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 // Initialize the application
