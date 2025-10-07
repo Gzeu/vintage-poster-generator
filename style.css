@@ -11,6 +11,12 @@ body {
     color: #333;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+body.loaded {
+    opacity: 1;
 }
 
 .container {
@@ -36,8 +42,14 @@ header h1 {
 header p {
     font-size: 1.2rem;
     opacity: 0.9;
-    max-width: 600px;
+    max-width: 700px;
     margin: 0 auto;
+}
+
+header strong {
+    background: rgba(255,255,255,0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
 }
 
 /* Main Content Layout */
@@ -268,6 +280,7 @@ input:checked + .slider:before {
 
 .generate-btn:hover:not(:disabled) {
     transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
 }
 
 .generate-btn:disabled {
@@ -307,6 +320,10 @@ input:checked + .slider:before {
     margin: 0;
     color: #4a5568;
     font-size: 14px;
+}
+
+.output-info strong {
+    color: #667eea;
 }
 
 /* Loading States */
@@ -388,6 +405,7 @@ input:checked + .slider:before {
     cursor: pointer;
     font-weight: 600;
     margin-top: 10px;
+    transition: background 0.3s ease;
 }
 
 .retry-btn:hover {
@@ -535,6 +553,7 @@ input:checked + .slider:before {
     cursor: pointer;
     font-size: 12px;
     margin-top: 10px;
+    transition: background 0.3s ease;
 }
 
 .copy-prompt-btn:hover {
@@ -590,6 +609,7 @@ input:checked + .slider:before {
     font-size: 12px;
     cursor: pointer;
     width: auto;
+    transition: background 0.3s ease;
 }
 
 .copy-button:hover {
@@ -740,20 +760,69 @@ input:checked + .slider:before {
     line-height: 1.5;
 }
 
+/* Info Section */
+.info-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.info-card {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border-left: 4px solid #667eea;
+}
+
+.info-card h3 {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.5rem;
+    color: #4a5568;
+    margin-bottom: 20px;
+}
+
+.info-card ol,
+.info-card ul {
+    padding-left: 20px;
+}
+
+.info-card li {
+    margin-bottom: 10px;
+    color: #4a5568;
+}
+
+.info-card strong {
+    color: #2d3748;
+}
+
 /* Footer */
 footer {
     text-align: center;
     color: white;
-    opacity: 0.8;
+    opacity: 0.9;
+    padding: 20px 0;
+}
+
+footer p {
+    margin-bottom: 10px;
 }
 
 footer a {
     color: white;
     text-decoration: none;
+    transition: opacity 0.3s ease;
 }
 
 footer a:hover {
+    opacity: 0.8;
     text-decoration: underline;
+}
+
+footer small {
+    opacity: 0.7;
+    font-style: italic;
 }
 
 /* Color Palette Preview */
@@ -770,6 +839,11 @@ footer a:hover {
     border-radius: 50%;
     border: 2px solid white;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease;
+}
+
+.color-swatch:hover {
+    transform: scale(1.1);
 }
 
 /* Animation for generated cards */
@@ -805,12 +879,17 @@ footer a:hover {
     .form-section,
     .output-section,
     .templates-section,
-    .features-section {
+    .features-section,
+    .info-card {
         padding: 20px;
     }
     
     .templates-grid,
     .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .info-section {
         grid-template-columns: 1fr;
     }
     
@@ -856,5 +935,13 @@ footer a:hover {
     
     .completion-message {
         padding: 15px;
+    }
+    
+    .feature-icon {
+        font-size: 2rem;
+    }
+    
+    header h1 {
+        font-size: 1.5rem;
     }
 }
