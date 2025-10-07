@@ -13,7 +13,7 @@
     <div class="container">
         <header>
             <h1>🎨 Generator de Postere Vintage de Călătorie</h1>
-            <p>Creează postere de călătorie în stil mid-century modern cu variabile personalizabile și generare de imagini cu <strong>pollination</strong></p>
+            <p>Creează postere de călătorie în stil mid-century modern cu generare reală de imagini prin <strong>Pollinations.ai</strong></p>
         </header>
 
         <div class="main-content">
@@ -57,54 +57,17 @@
                         </select>
                     </div>
 
-                    <!-- Image Generation Section -->
                     <div class="form-group image-generation-section">
                         <div class="toggle-container">
                             <label class="toggle-switch">
-                                <input type="checkbox" id="generateImages">
+                                <input type="checkbox" id="generateImages" checked>
                                 <span class="slider"></span>
                             </label>
                             <label for="generateImages" class="toggle-label">
-                                🖼️ <strong>Generează și imagini (Pollination)</strong>
+                                🖼️ <strong>Generează și imagini (Pollinations.ai)</strong>
                             </label>
                         </div>
-                        <small>⚠️ <strong>Notă:</strong> Generarea de imagini creează postere vizuale mock-up pentru demonstrație</small>
-                    </div>
-
-                    <div class="form-group" id="advancedOptions" style="display: none;">
-                        <div class="advanced-options">
-                            <h4>⚙️ Opțiuni Avansate de Generare</h4>
-                            
-                            <div class="option-row">
-                                <label for="imageCount">🔢 Numărul de Variații:</label>
-                                <select id="imageCount">
-                                    <option value="2">2 variații</option>
-                                    <option value="3">3 variații</option>
-                                    <option value="4" selected>4 variații (recomandat)</option>
-                                    <option value="6">6 variații</option>
-                                </select>
-                            </div>
-                            
-                            <div class="option-row">
-                                <label for="imageStyle">🎨 Stilul de Generare:</label>
-                                <select id="imageStyle">
-                                    <option value="detailed" selected>Detaliat (calitate înaltă)</option>
-                                    <option value="artistic">Artistic (mai creativ)</option>
-                                    <option value="minimal">Minimalist (simplu și curat)</option>
-                                    <option value="vintage">Vintage Plus (extra retro)</option>
-                                </select>
-                            </div>
-                            
-                            <div class="pollination-info">
-                                <h5>🌸 Cum funcționează Pollination:</h5>
-                                <ul>
-                                    <li><strong>🎯 Originală:</strong> Stilul tău exact</li>
-                                    <li><strong>📜 Texturată:</strong> Cu texturi de hârtie vintage</li>
-                                    <li><strong>🌅 Golden Hour:</strong> Cu iluminare dramatică</li>
-                                    <li><strong>⚡ Dinamică:</strong> Cu compoziție diagonală</li>
-                                </ul>
-                            </div>
-                        </div>
+                        <small>⚠️ <strong>Notă:</strong> Generarea reală de imagini prin Pollinations.ai (10-30 sec per imagine)</small>
                     </div>
 
                     <button type="submit" class="generate-btn">
@@ -117,7 +80,7 @@
             <div class="output-section">
                 <h2>✨ Posterele Generate</h2>
                 <div class="output-info">
-                    <p>Aici vor apărea posterele tale generate cu metoda <strong>pollination</strong>. Fiecare poster va avea mai multe variații pentru a-ți oferi opțiuni diverse și creative.</p>
+                    <p>Aici vor apărea cele <strong>4 variații</strong> ale posterului tău generate secvențial cu Pollinations.ai pentru evitarea erorilor de rate limiting.</p>
                 </div>
                 <div id="posterCards"></div>
             </div>
@@ -131,74 +94,13 @@
             <div class="templates-grid" id="templatesGrid"></div>
         </div>
 
-        <div class="features-section">
-            <h2>🌟 Caracteristici Pollination</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">🎨</div>
-                    <h3>Variații Multiple</h3>
-                    <p>Generează până la 6 variații ale fiecărui poster pentru opțiuni diverse și creative</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🌸</div>
-                    <h3>Metoda Pollination</h3>
-                    <p>Combină diferite stiluri și tehnici pentru rezultate unice și artistice</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Prompt-uri Profesionale</h3>
-                    <p>Prompt-uri optimizate pentru servicii AI ca Midjourney, DALL-E, Stable Diffusion</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">💾</div>
-                    <h3>Copiere Rapidă</h3>
-                    <p>Copiază prompt-urile direct în clipboard pentru utilizare imediată</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="info-section">
-            <div class="info-card">
-                <h3>🎯 Cum să folosești aplicația:</h3>
-                <ol>
-                    <li><strong>Completează formularul</strong> cu destinația și stilul dorit</li>
-                    <li><strong>Alege culorile</strong> din opțiunile predefinite sau personalizate</li>
-                    <li><strong>Activează generarea de imagini</strong> pentru preview-uri vizuale</li>
-                    <li><strong>Copiază prompt-urile</strong> și folosește-le cu servicii AI profesionale</li>
-                </ol>
-            </div>
-            <div class="info-card">
-                <h3>🤖 Servicii AI Recomandate:</h3>
-                <ul>
-                    <li><strong>Midjourney</strong> - Pentru calitate premium și stil artistic</li>
-                    <li><strong>DALL-E 3</strong> - Pentru prompturi complexe și detaliate</li>
-                    <li><strong>Stable Diffusion</strong> - Pentru control complet și personalizare</li>
-                    <li><strong>Leonardo AI</strong> - Pentru stiluri vintage autentice</li>
-                </ul>
-            </div>
-        </div>
-
         <footer>
             <p>Creat cu ❤️ pentru pasionații posterelor vintage de călătorie</p>
-            <p><a href="https://github.com/Gzeu/vintage-poster-generator" target="_blank">📂 Vezi pe GitHub</a> | 🇷🇴 Made in Romania | 🌟 <a href="#" onclick="starProject()">Star pe GitHub</a></p>
-            <small>💡 Aplicația folosește metoda pollination pentru a genera variații creative ale posterelor tale</small>
+            <p><a href="https://github.com/Gzeu/vintage-poster-generator" target="_blank">📂 Vezi pe GitHub</a> | 🇷🇴 Made in Romania | Powered by <a href="https://pollinations.ai" target="_blank">Pollinations.ai</a></p>
+            <small>💡 Aplicația folosește generarea secvențială pentru a evita erorile de rate limiting</small>
         </footer>
     </div>
 
-    <!-- Scripts -->
-    <script src="config.js"></script>
     <script src="script.js"></script>
-    
-    <!-- Helper function for GitHub star -->
-    <script>
-        function starProject() {
-            window.open('https://github.com/Gzeu/vintage-poster-generator', '_blank');
-        }
-        
-        // Add some loading animation on page load
-        window.addEventListener('load', function() {
-            document.body.classList.add('loaded');
-        });
-    </script>
 </body>
 </html>
